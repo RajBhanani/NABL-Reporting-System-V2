@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { HttpCodes } from '../types/HttpCodes.enum';
-import { APIError } from '../utils/APIError';
+import { HttpCodes } from '../types/enums/HttpCodes.enum';
+import { APIError } from '../utils/APIError.utils';
 
 const notFound = (
   _request: Request,
