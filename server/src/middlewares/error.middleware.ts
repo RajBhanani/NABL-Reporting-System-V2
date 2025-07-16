@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { ErrorTypes } from '../types/ErrorTypes.enum';
-import { APIError } from '../utils/APIError';
+import { ErrorTypes } from '../types/enums/ErrorTypes.enum';
+import { APIError } from '../utils/APIError.utils';
 
 /* eslint-disable */
 const errorHandler = (

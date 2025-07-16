@@ -1,4 +1,4 @@
-import { HttpCodes } from '../types/HttpCodes.enum';
+import { HttpCodes } from '../types/enums/HttpCodes.enum';
 
 class APIResponse<T> {
   public readonly status: HttpCodes;

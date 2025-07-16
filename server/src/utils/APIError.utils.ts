@@ -1,6 +1,6 @@
-import { config } from '../config/config';
-import { ErrorTypes } from '../types/ErrorTypes.enum';
-import { HttpCodes } from '../types/HttpCodes.enum';
+import { appConfig } from '../config/appConfig';
+import { ErrorTypes } from '../types/enums/ErrorTypes.enum';
+import { HttpCodes } from '../types/enums/HttpCodes.enum';
 
 class APIError extends Error {
   public readonly status: HttpCodes;
@@ -19,7 +19,7 @@ class APIError extends Error {
     this.status = status;
     this.type = type;
     this.errors = errors;
-    if (config.nodeEnv === 'development') {
+    if (appConfig.nodeEnv === 'development') {
       if (stack) this.stack = stack;
       else Error.captureStackTrace(this, this.constructor);
     } else this.stack = undefined;
@@ -53,6 +53,10 @@ class APIError extends Error {
 
   static NotFound(message = 'Not found') {
     return new APIError(HttpCodes.NotFound, ErrorTypes.NotFound, message);
+  }
+
+  static Conflict(message = 'Conflict occured in the request') {
+    return new APIError(HttpCodes.Conflict, ErrorTypes.Conflict, message);
   }
 }
 
