@@ -4,7 +4,9 @@ const cleanFields = <T extends Record<string, unknown>>(obj: T): T =>
       key,
       typeof value === 'string'
         ? value.trim() || undefined
-        : (value ?? undefined),
+        : Array.isArray(value) && value.length === 0
+          ? undefined
+          : (value ?? undefined),
     ])
   ) as T;
 

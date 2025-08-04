@@ -1,26 +1,19 @@
 import cron from 'node-cron';
 
-import MetaData from '../models/MetaData.model';
+import SampleType from '../models/SampleType.model';
 
-const resetMetaData = () => {
+const resetMetaData = async () => {
   cron.schedule('0 0 1 1 *', async () => {
     try {
-      const metadata = await MetaData.findById('metadata');
-      const currentYear = new Date().getFullYear();
-      if (!metadata) {
-        console.warn('Metadata not found');
-        return;
-      }
-      if (metadata.currentYearInDatabase !== currentYear) {
-        await MetaData.findByIdAndUpdate('metadata', {
+      await SampleType.updateMany(
+        {},
+        {
           $set: {
-            currentSoilSampleId: 0,
-            currentWaterSampleId: 0,
-            currentYearInDatabase: currentYear,
+            sampleTypeCurrentSampleId: 0,
           },
-        });
-        console.log('Year changed. Sample IDs reset and current year updated');
-      }
+        }
+      );
+      console.log('Year changed. Sample IDs reset');
     } catch (err) {
       console.error('Error reseting metadata');
       throw err;

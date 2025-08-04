@@ -13,9 +13,8 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from '../utils/auth.utils';
-import cleanFields from '../utils/cleanFIelds.utils';
+import cleanFields from '../utils/cleanFields.utils';
 import convertToMiliseconds from '../utils/convertToMiliseconds.utils';
-import { userMapper } from '../utils/typeMappers.utils';
 import validateDefined from '../utils/validateDefined.utils';
 
 const register = asyncHandler(
@@ -28,11 +27,8 @@ const register = asyncHandler(
     if (existingUser) throw APIError.Conflict('Username is already taken');
 
     const user = await User.create({ username, password, name, email, role });
-    await user.save();
 
-    return response
-      .status(HttpCodes.Created)
-      .json(APIResponse.Created(userMapper(user)));
+    return response.status(HttpCodes.Created).json(APIResponse.Created(user));
   }
 );
 
@@ -60,7 +56,7 @@ const login = asyncHandler(
       maxAge: convertToMiliseconds(appConfig.jwtRefreshExpiresIn),
     } as CookieOptions);
 
-    return response.status(HttpCodes.OK).json(APIResponse.Ok(accessToken));
+    return response.status(HttpCodes.Ok).json(APIResponse.Ok(accessToken));
   }
 );
 
@@ -79,7 +75,7 @@ const refreshToken = asyncHandler(
         id: user._id,
         role: user.role,
       } as AccessTokenPayload);
-      return response.status(HttpCodes.OK).json(APIResponse.Ok(newAccessToken));
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(newAccessToken));
     } catch (error) {
       return next(
         new APIError(

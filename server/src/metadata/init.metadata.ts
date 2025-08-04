@@ -6,11 +6,6 @@ const initMetaData = async () => {
       'metadata',
       {
         $setOnInsert: {
-          currentYearInDatabase: new Date().getFullYear(),
-          currentSoilSampleId: 0,
-          currentWaterSampleId: 0,
-          currentSoilParameterId: 0,
-          currentWaterParameterId: 0,
           currentCertificationNumber: 7275,
           currentRevision: '01',
           analysedBy: 'Mr. L. Analyst',
