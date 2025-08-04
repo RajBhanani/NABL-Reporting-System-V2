@@ -1,5 +1,5 @@
 export enum HttpCodes {
-  OK = 200,
+  Ok = 200,
   Created = 201,
   NoContent = 204,
   BadRequest = 400,

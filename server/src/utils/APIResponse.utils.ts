@@ -12,7 +12,7 @@ class APIResponse<T> {
   }
 
   static Ok<T>(data: T, message = 'OK') {
-    return new APIResponse(HttpCodes.OK, data, message);
+    return new APIResponse(HttpCodes.Ok, data, message);
   }
 
   static Created<T>(data: T, message = 'Created') {

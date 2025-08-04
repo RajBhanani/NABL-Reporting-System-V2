@@ -5,10 +5,6 @@ const validateDefined = (
   customMessage?: string
 ) => {
   const missing = Object.entries(fields)
-    .map(([key, value]) => [
-      key,
-      typeof value === 'string' ? value.trim() : value,
-    ])
     .filter(
       ([, value]) => value === undefined || value === null || value === ''
     )

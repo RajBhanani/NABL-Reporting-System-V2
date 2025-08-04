@@ -4,6 +4,6 @@ export enum ErrorTypes {
   Authorization = 'AUTHORIZATION_ERROR',
   NotFound = 'NOT_FOUND',
   Conflict = 'CONFLICT',
-  Internal = 'INTERNAL_SERVER_ERROR',
+  InternalServerError = 'INTERNAL_SERVER_ERROR',
   Database = 'DATABASE_ERROR',
 }

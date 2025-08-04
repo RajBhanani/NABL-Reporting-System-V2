@@ -17,7 +17,7 @@ const errorHandler = (
     const status =
       errorResponse.status ??
       (errorResponse instanceof mongoose.Error ? 400 : 500);
-    const type = errorResponse.type ?? ErrorTypes.Internal;
+    const type = errorResponse.type ?? ErrorTypes.InternalServerError;
     const message = errorResponse.message ?? 'Something went wrong';
     const errors = errorResponse.errors ?? [];
     const stack = errorResponse.stack ?? '';

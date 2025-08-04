@@ -7,7 +7,7 @@ import { asyncHandler } from '../utils/asyncHandler.utils';
 const healthcheck = asyncHandler(
   async (_request: Request, response: Response) => {
     return response
-      .status(HttpCodes.OK)
+      .status(HttpCodes.Ok)
       .json(APIResponse.Ok<number>(process.uptime()));
   }
 );
