@@ -12,15 +12,15 @@ import validateMongoID from '../utils/validateMongoID.utils';
 const createSampleType = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { sampleTypeName } = cleanFields(request.body);
-      validateDefined({ sampleTypeName });
+      const { name } = cleanFields(request.body);
+      validateDefined({ name });
 
-      const doesExist = await SampleType.exists({ sampleTypeName });
+      const doesExist = await SampleType.exists({ name });
       if (doesExist)
-        throw APIError.Conflict(`Sample type ${sampleTypeName} already exists`);
+        throw APIError.Conflict(`Sample type ${name} already exists`);
 
       const createdSampleType = await SampleType.create({
-        sampleTypeName,
+        name,
       });
 
       return response
@@ -62,9 +62,7 @@ const getSampleTypeById = asyncHandler(
 const updateSampleType = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { _id, sampleTypeName, sampleTypeCurrentSampleId } = cleanFields(
-        request.body
-      );
+      const { _id, name, currentSampleId } = cleanFields(request.body);
 
       validateDefined({ _id });
       validateMongoID(_id);
@@ -73,8 +71,8 @@ const updateSampleType = asyncHandler(
         _id,
         {
           $set: {
-            sampleTypeName,
-            sampleTypeCurrentSampleId,
+            name,
+            currentSampleId,
           },
         },
         {
@@ -95,8 +93,8 @@ const updateSampleType = asyncHandler(
 const deleteSampleType = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { _id } = cleanFields(request.body);
-      validateDefined({ _id });
+      const { _id } = request.params;
+
       validateMongoID(_id);
 
       const deletedSampleType = await SampleType.findByIdAndDelete(_id);

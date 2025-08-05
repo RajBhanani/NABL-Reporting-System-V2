@@ -16,6 +16,6 @@ router.get('/', getAllParameters);
 router.get('/type/:_id', getParametersOfType);
 router.get('/id/:_id', getParameterById);
 router.put('/', updateParameter);
-router.delete('/', deleteParameter);
+router.delete('/:_id', deleteParameter);
 
 export default router;

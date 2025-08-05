@@ -14,6 +14,6 @@ router.post('/', createSampleType);
 router.get('/', getAllSampleTypes);
 router.get('/:_id', getSampleTypeById);
 router.put('/', updateSampleType);
-router.delete('/', deleteSampleType);
+router.delete('/:_id', deleteSampleType);
 
 export default router;

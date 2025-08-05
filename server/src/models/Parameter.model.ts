@@ -1,40 +1,40 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IParameter extends Document {
-  parameterName: string;
-  parameterOfSampleType: Types.ObjectId;
-  parameterUnit: string;
-  parameterTestMethod: string;
-  parameterVariables: string[];
-  parameterFormula: string;
+  name: string;
+  sampleType: Types.ObjectId;
+  unit: string;
+  testMethod: string;
+  variables: string[];
+  formula: string;
 }
 
 const parameterSchema: Schema<IParameter> = new Schema({
-  parameterName: {
+  name: {
     type: String,
     required: true,
   },
-  parameterOfSampleType: {
+  sampleType: {
     type: Schema.Types.ObjectId,
     ref: 'sample_type',
     required: true,
   },
-  parameterUnit: {
+  unit: {
     type: String,
     trim: true,
     required: true,
   },
-  parameterVariables: {
+  testMethod: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  variables: {
     type: [{ type: String }],
   },
-  parameterFormula: {
+  formula: {
     type: String,
     trim: true,
-  },
-  parameterTestMethod: {
-    type: String,
-    trim: true,
-    required: true,
   },
 });
 
