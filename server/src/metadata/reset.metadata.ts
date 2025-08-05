@@ -2,7 +2,7 @@ import cron from 'node-cron';
 
 import SampleType from '../models/SampleType.model';
 
-const resetMetaData = async () => {
+const resetMetaData = () => {
   cron.schedule('0 0 1 1 *', async () => {
     try {
       await SampleType.updateMany(

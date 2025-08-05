@@ -13,36 +13,33 @@ import validateMongoID from '../utils/validateMongoID.utils';
 const createParameter = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const {
-        parameterName,
-        parameterOfSampleType,
-        parameterUnit,
-        parameterVariables,
-        parameterFormula,
-        parameterTestMethod,
-      } = cleanFields(request.body);
+      const { name, sampleType, unit, testMethod, variables, formula } =
+        cleanFields(request.body);
       validateDefined({
-        parameterName,
-        parameterOfSampleType,
-        parameterUnit,
-        parameterTestMethod,
+        name,
+        sampleType,
+        unit,
+        testMethod,
       });
 
-      if (parameterFormula) validateDefined({ parameterVariables });
-      if (parameterVariables) validateDefined({ parameterFormula });
+      if (formula) validateDefined({ variables });
+      if (variables) validateDefined({ formula });
 
-      validateMongoID(parameterOfSampleType);
+      validateMongoID(sampleType);
 
-      if (!(await SampleType.exists({ _id: parameterOfSampleType })))
+      if (!(await SampleType.exists({ _id: sampleType })))
         throw APIError.BadRequest('Sample type not found');
 
+      if (variables && !Array.isArray(variables))
+        throw APIError.BadRequest('Variables need to be in an array');
+
       const createdParameter = await Parameter.create({
-        parameterName,
-        parameterOfSampleType,
-        parameterUnit,
-        parameterVariables,
-        parameterFormula,
-        parameterTestMethod,
+        name,
+        sampleType,
+        unit,
+        testMethod,
+        variables,
+        formula,
       });
 
       return response
@@ -58,7 +55,7 @@ const getAllParameters = asyncHandler(
   async (_request: Request, response: Response, next: NextFunction) => {
     try {
       const parameters = await Parameter.find()
-        .populate('parameterOfSampleType', 'sampleTypeName')
+        .populate('sampleType', 'name')
         .select('-__v');
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(parameters));
     } catch (error) {
@@ -78,8 +75,8 @@ const getParametersOfType = asyncHandler(
       if (!sampleType) throw APIError.BadRequest('Not a valid sample type');
 
       const parameters = await Parameter.find({
-        parameterOfSampleType: _id,
-      }).select('-parameterOfSampleType -__v');
+        sampleType: _id,
+      }).select('-sampleType -__v');
 
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(parameters));
     } catch (error) {
@@ -95,7 +92,9 @@ const getParameterById = asyncHandler(
 
       validateMongoID(_id);
 
-      const parameter = await Parameter.findById(_id).select('-__v');
+      const parameter = await Parameter.findById(_id)
+        .populate('sampleType', 'name')
+        .select('-__v');
       if (!parameter)
         throw APIError.NotFound(`Parameter  with ID: ${_id} not found`);
 
@@ -109,37 +108,30 @@ const getParameterById = asyncHandler(
 const updateParameter = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const {
-        _id,
-        parameterName,
-        parameterUnit,
-        parameterVariables,
-        parameterFormula,
-        parameterTestMethod,
-      } = cleanFields(request.body);
+      const { _id, name, unit, testMethod, variables, formula } = cleanFields(
+        request.body
+      );
 
       validateDefined({ _id });
+      validateMongoID(_id);
 
       const parameter = await Parameter.findById(_id).select('-__v');
 
       if (!parameter)
         throw APIError.NotFound(`Parameter  with ID: ${_id} not found`);
 
-      if (
-        !parameter.parameterFormula &&
-        (parameterFormula || parameterVariables)
-      )
-        validateDefined({ parameterFormula, parameterVariables });
+      if (!parameter.formula && (formula || variables))
+        validateDefined({ formula, variables });
 
       await Parameter.findByIdAndUpdate(
         _id,
         {
           $set: {
-            parameterName,
-            parameterUnit,
-            parameterVariables,
-            parameterFormula,
-            parameterTestMethod,
+            name,
+            unit,
+            testMethod,
+            variables,
+            formula,
           },
         },
         {
@@ -157,8 +149,9 @@ const updateParameter = asyncHandler(
 const deleteParameter = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { _id } = cleanFields(request.body);
-      validateDefined({ _id });
+      const { _id } = request.params;
+
+      validateMongoID(_id);
 
       const deletedParameter = await Parameter.findByIdAndDelete(_id);
       if (!deletedParameter)

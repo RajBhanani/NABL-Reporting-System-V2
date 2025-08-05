@@ -1,13 +1,13 @@
 import { Document, model, Schema } from 'mongoose';
 
 export interface ISampleType extends Document {
-  sampleTypeName: string;
-  sampleTypeCurrentSampleId: number;
+  name: string;
+  currentSampleId: number;
 }
 
 const sampleTypeSchema: Schema<ISampleType> = new Schema({
-  sampleTypeName: { type: String, required: true, unique: true },
-  sampleTypeCurrentSampleId: { type: Number, default: 0 },
+  name: { type: String, required: true, unique: true },
+  currentSampleId: { type: Number, default: 0 },
 });
 
 const SampleType = model<ISampleType>('sample_type', sampleTypeSchema);
