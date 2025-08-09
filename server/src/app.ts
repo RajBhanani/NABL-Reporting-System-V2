@@ -9,6 +9,7 @@ import healthcheckRouter from './routes/healthcheck.routes';
 import { notFound } from './routes/notFound.routes';
 import parameterRouter from './routes/parameter.routes';
 import parameterSetRouter from './routes/parameterSet.routes';
+import sampleRouter from './routes/sample.routes';
 import sampleTypeRouter from './routes/sampleType.routes';
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/v2/auth', authRouter);
 app.use('/api/v2/sampleTypes', sampleTypeRouter);
 app.use('/api/v2/parameters', parameterRouter);
 app.use('/api/v2/parameterSets', parameterSetRouter);
+app.use('/api/v2/samples', sampleRouter);
 
 app.use(notFound);
 

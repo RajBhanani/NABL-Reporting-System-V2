@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import Parameter from '../models/Parameter.model';
 import ParameterSet from '../models/ParameterSet.model';
+import SampleType from '../models/SampleType.model';
 import { HttpCodes } from '../types/enums/HttpCodes.enum';
 import { APIError } from '../utils/APIError.utils';
 import { APIResponse } from '../utils/APIResponse.utils';
@@ -17,6 +18,10 @@ const createParameterSet = asyncHandler(
 
       validateDefined({ name, sampleType, parameters });
       validateMongoID(sampleType);
+
+      if (!(await SampleType.exists({ _id: sampleType })))
+        throw APIError.BadRequest('Not a valid sample type');
+
       if (!Array.isArray(parameters))
         throw APIError.BadRequest('Parameter IDs need to be in an array');
       const nonexistingParams: string[] = [];
@@ -68,6 +73,9 @@ const getParameterSetsOfType = asyncHandler(
       const { _id } = request.params;
 
       validateMongoID(_id);
+
+      if (!(await SampleType.exists({ _id })))
+        throw APIError.BadRequest('Not a valid sample type');
 
       const parameterSets = await ParameterSet.find({ sampleType: _id })
         .populate('parameters', 'name')
