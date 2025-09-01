@@ -38,7 +38,7 @@ const login = asyncHandler(
     validateDefined({ username, password });
     const user = await User.findOne({ username });
     if (!user || !(await user.comparePassword(password)))
-      throw APIError.Unauthorized('Invalid credentials');
+      throw APIError.Unauthorised('Invalid credentials');
 
     const accessToken = generateAccessToken({
       id: user._id,
@@ -63,13 +63,13 @@ const login = asyncHandler(
 const refreshToken = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies?.refreshToken;
-    if (!token) throw APIError.Unauthorized('Session expired. Log in again');
+    if (!token) throw APIError.Unauthorised('Session expired. Log in again');
 
     try {
       const decoded = verifyRefreshToken(token) as { id: string };
       const user = await User.findById(decoded.id);
       if (!user || user.refreshToken !== token)
-        throw APIError.Unauthorized('Invalid refresh token. Log in again');
+        throw APIError.Unauthorised('Invalid refresh token. Log in again');
 
       const newAccessToken = generateAccessToken({
         id: user._id,
@@ -79,7 +79,7 @@ const refreshToken = asyncHandler(
     } catch (error) {
       return next(
         new APIError(
-          HttpCodes.Unauthorized,
+          HttpCodes.Unauthorised,
           ErrorTypes.Authentication,
           'Error in refreshing tokens',
           [error as string]

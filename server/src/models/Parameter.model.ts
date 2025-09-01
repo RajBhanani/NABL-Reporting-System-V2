@@ -38,6 +38,6 @@ const parameterSchema: Schema<IParameter> = new Schema({
   },
 });
 
-const Parameter = model<IParameter>('parameters', parameterSchema);
+const Parameter = model<IParameter>('parameter', parameterSchema);
 
 export default Parameter;
