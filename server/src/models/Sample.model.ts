@@ -1,12 +1,18 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
+interface SampleParameterSet {
+  _id: Types.ObjectId;
+  parameterSet: Types.ObjectId;
+  isReported: boolean;
+}
+
 export interface ISample extends Document {
   sampleId: number;
   sampleCode: string;
   sampleReceivedOn: Date;
   sampleType: Types.ObjectId;
   sampleDetail: string;
-  parameterSet: Types.ObjectId[];
+  parameterSets: SampleParameterSet[];
   requestedBy: string;
   sampleCondOrQty: string;
   samplingBy: string;
@@ -17,7 +23,7 @@ export interface ISample extends Document {
   surveyNo: number;
   prevCrop: string;
   nextCrop: string;
-  isReported: boolean;
+  isCompleted: boolean;
 }
 
 const sampleSchema = new Schema<ISample>({
@@ -42,14 +48,23 @@ const sampleSchema = new Schema<ISample>({
     type: String,
     trim: true,
   },
-  parameterSet: {
+  parameterSets: {
     type: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'parameter_set',
+        parameterSet: {
+          type: Schema.Types.ObjectId,
+          ref: 'parameter_set',
+          required: true,
+        },
+        isReported: { type: Boolean, default: false },
       },
     ],
-    required: true,
+    validate: {
+      validator: function (arr: SampleParameterSet[]) {
+        console.log(arr);
+        return Array.isArray(arr) && arr.length > 0;
+      },
+    },
   },
   requestedBy: {
     type: String,
@@ -96,7 +111,7 @@ const sampleSchema = new Schema<ISample>({
     type: String,
     trim: true,
   },
-  isReported: {
+  isCompleted: {
     type: Boolean,
     required: true,
     default: false,

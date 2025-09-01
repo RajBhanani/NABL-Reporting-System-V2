@@ -43,9 +43,9 @@ class APIError extends Error {
     );
   }
 
-  static Unauthorized(message = 'Unauthorized') {
+  static Unauthorised(message = 'Unauthorised') {
     return new APIError(
-      HttpCodes.Unauthorized,
+      HttpCodes.Unauthorised,
       ErrorTypes.Authentication,
       message
     );
@@ -57,6 +57,14 @@ class APIError extends Error {
 
   static Conflict(message = 'Conflict occured in the request') {
     return new APIError(HttpCodes.Conflict, ErrorTypes.Conflict, message);
+  }
+
+  static InternalServerError(message = 'Internal Server Error') {
+    return new APIError(
+      HttpCodes.InternalServerError,
+      ErrorTypes.InternalServerError,
+      message
+    );
   }
 }
 

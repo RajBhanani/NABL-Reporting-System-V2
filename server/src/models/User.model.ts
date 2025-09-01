@@ -1,12 +1,14 @@
 import bcrypt from 'bcrypt';
 import { Document, model, Schema } from 'mongoose';
 
+import { Roles } from '../types/enums/Roles.enum';
+
 export interface IUser extends Document {
   username: string;
   password: string;
   name: string;
   email: string;
-  role: 'user' | 'admin' | 'superadmin';
+  role: Roles;
   refreshToken?: string;
   comparePassword(inputPassword: string): Promise<boolean>;
 }
@@ -42,7 +44,7 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
       enum: {
-        values: ['user', 'admin', 'superadmin'],
+        values: ['USER', 'ADMIN', 'SUPERADMIN'],
         message: '{VALUE} is not a valid role',
       },
     },

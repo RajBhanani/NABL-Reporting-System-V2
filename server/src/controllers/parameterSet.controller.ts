@@ -14,7 +14,9 @@ import validateMongoID from '../utils/validateMongoID.utils';
 const createParameterSet = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { name, sampleType, parameters } = cleanFields(request.body);
+      const { name, sampleType, parameters, isPartial } = cleanFields(
+        request.body
+      );
 
       validateDefined({ name, sampleType, parameters });
       validateMongoID(sampleType);
@@ -41,6 +43,7 @@ const createParameterSet = asyncHandler(
         name,
         sampleType,
         parameters,
+        isPartial,
       });
 
       return response
@@ -113,7 +116,7 @@ const getParameterSetById = asyncHandler(
 const updateParameterSet = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { _id, name, parameters } = cleanFields(request.body);
+      const { _id, name, parameters, isPartial } = cleanFields(request.body);
 
       validateDefined({ _id });
       validateMongoID(_id);
@@ -154,6 +157,7 @@ const updateParameterSet = asyncHandler(
           $set: {
             name,
             parameters,
+            isPartial,
           },
         },
         {

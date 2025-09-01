@@ -10,7 +10,7 @@ const authenticate = asyncHandler(
     try {
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer '))
-        throw APIError.Unauthorized('Missing or malformed token');
+        throw APIError.Unauthorised('Missing or malformed token');
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(
         token,
@@ -22,7 +22,7 @@ const authenticate = asyncHandler(
       };
       return next();
     } catch {
-      throw APIError.Unauthorized('Error in authenticating');
+      throw APIError.Unauthorised('Error in authenticating');
     }
   }
 );

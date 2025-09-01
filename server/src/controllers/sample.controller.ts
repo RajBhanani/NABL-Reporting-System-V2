@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { startSession } from 'mongoose';
+import { startSession, Types } from 'mongoose';
 
 import ParameterSet from '../models/ParameterSet.model';
 import Sample from '../models/Sample.model';
@@ -20,7 +20,7 @@ const createSample = asyncHandler(
     try {
       const {
         sampleType,
-        parameterSet,
+        parameterSets,
         sampleReceivedOn,
         requestedBy,
         sampleCondOrQty,
@@ -35,13 +35,13 @@ const createSample = asyncHandler(
         nextCrop,
       } = cleanFields(request.body);
 
-      validateDefined({ sampleType, parameterSet });
+      validateDefined({ sampleType, parameterSets });
       validateMongoID(sampleType);
 
-      if (!Array.isArray(parameterSet))
+      if (!Array.isArray(parameterSets))
         throw APIError.BadRequest(`Parameter sets need to be in an array`);
 
-      parameterSet.forEach((set: string) => {
+      parameterSets.forEach((set: string) => {
         validateMongoID(set);
       });
 
@@ -55,7 +55,7 @@ const createSample = asyncHandler(
 
       const nonExistingSets: string[] = [];
       await Promise.all(
-        parameterSet.map(async (set: string) => {
+        parameterSets.map(async (set: string) => {
           if (
             !(await ParameterSet.exists({
               _id: set,
@@ -69,6 +69,10 @@ const createSample = asyncHandler(
         throw APIError.BadRequest(
           `Parameter set with ID ${nonExistingSets.join(', ')} doesn't exist`
         );
+
+      const formattedParameterSets = parameterSets.map((set: string) => {
+        return { parameterSet: set, isReported: false };
+      });
 
       sampleTypeDoc.currentSampleId++;
       await sampleTypeDoc.save({ session: session });
@@ -84,7 +88,7 @@ const createSample = asyncHandler(
             sampleId: Number(sampleTypeDoc.currentSampleId),
             sampleCode,
             sampleType,
-            parameterSet,
+            parameterSets: formattedParameterSets,
             sampleReceivedOn: sampleReceivedOn ?? new Date(),
             requestedBy,
             sampleCondOrQty,
@@ -121,7 +125,7 @@ const getAllSamples = asyncHandler(
     try {
       const samples = await Sample.find()
         .populate('sampleType', 'name')
-        .populate('parameterSet', 'name')
+        .populate('parameterSets.parameterSet', 'name')
         .select('-__v');
 
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(samples));
@@ -142,7 +146,7 @@ const getSamplesOfType = asyncHandler(
         throw APIError.BadRequest('Not a valid sample type');
 
       const samples = await Sample.find({ sampleType: _id })
-        .populate('parameterSet', 'name')
+        .populate('parameterSets.parameterSet', 'name')
         .select('-sampleType -__v');
 
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(samples));
@@ -162,9 +166,9 @@ const getSamplesOfSet = asyncHandler(
       if (!(await ParameterSet.exists({ _id })))
         throw APIError.BadRequest('Not a valid parameter set');
 
-      const samples = await Sample.find({ parameterSet: _id })
+      const samples = await Sample.find({ parameterSets: _id })
         .populate('sampleType', 'name')
-        .select('-parameterSet -__v');
+        .select('-parameterSets -__v');
 
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(samples));
     } catch (error) {
@@ -182,7 +186,7 @@ const getSampleById = asyncHandler(
 
       const sample = await Sample.findById(_id)
         .populate('sampleType', 'name')
-        .populate('parameterSet', 'name')
+        .populate('parameterSets.parameterSet', 'name')
         .select('-__v');
 
       if (!sample)
@@ -201,7 +205,7 @@ const updateSample = asyncHandler(
       const {
         _id,
         sampleDetail,
-        parameterSet,
+        parameterSets,
         requestedBy,
         sampleCondOrQty,
         samplingBy,
@@ -222,13 +226,14 @@ const updateSample = asyncHandler(
       if (!sample)
         throw APIError.BadRequest(`Sample with ID ${_id} doesn't exist`);
 
-      if (parameterSet) {
-        if (!Array.isArray(parameterSet))
+      let formattedParameterSets = parameterSets;
+      if (parameterSets) {
+        if (!Array.isArray(parameterSets))
           throw APIError.BadRequest('Parameter sets need to be in an array');
 
         const nonExistingSets: string[] = [];
         await Promise.all(
-          parameterSet.map(async (set) => {
+          parameterSets.map(async (set) => {
             if (
               !(await ParameterSet.exists({
                 _id: set,
@@ -243,6 +248,15 @@ const updateSample = asyncHandler(
           throw APIError.BadRequest(
             `Parameter set(s) with ID(s) ${nonExistingSets.join(', ')} don't exist`
           );
+
+        formattedParameterSets = parameterSets.map((set: unknown) => {
+          return typeof set === 'string' || set instanceof Types.ObjectId
+            ? {
+                parameterSet: set,
+                isReported: false,
+              }
+            : set;
+        });
       }
 
       const updatedSample = await Sample.findByIdAndUpdate(
@@ -250,7 +264,7 @@ const updateSample = asyncHandler(
         {
           $set: {
             sampleDetail,
-            parameterSet,
+            parameterSets: formattedParameterSets,
             requestedBy,
             sampleCondOrQty,
             samplingBy,

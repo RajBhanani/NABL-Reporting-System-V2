@@ -9,6 +9,7 @@ import healthcheckRouter from './routes/healthcheck.routes';
 import { notFound } from './routes/notFound.routes';
 import parameterRouter from './routes/parameter.routes';
 import parameterSetRouter from './routes/parameterSet.routes';
+import reportRouter from './routes/report.routes';
 import sampleRouter from './routes/sample.routes';
 import sampleTypeRouter from './routes/sampleType.routes';
 
@@ -26,6 +27,7 @@ app.use('/api/v2/sampleTypes', sampleTypeRouter);
 app.use('/api/v2/parameters', parameterRouter);
 app.use('/api/v2/parameterSets', parameterSetRouter);
 app.use('/api/v2/samples', sampleRouter);
+app.use('/api/v2/reports', reportRouter);
 
 app.use(notFound);
 

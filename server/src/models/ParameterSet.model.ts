@@ -4,6 +4,7 @@ export interface IParameterSet extends Document {
   name: string;
   sampleType: Types.ObjectId;
   parameters: Types.ObjectId[];
+  isPartial: boolean;
 }
 
 const parameterSetSchema = new Schema<IParameterSet>({
@@ -21,10 +22,14 @@ const parameterSetSchema = new Schema<IParameterSet>({
     type: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'parameters',
+        ref: 'parameter',
       },
     ],
     required: true,
+  },
+  isPartial: {
+    type: Boolean,
+    default: false,
   },
 });
 
