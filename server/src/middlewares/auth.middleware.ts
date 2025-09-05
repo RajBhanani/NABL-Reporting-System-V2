@@ -7,23 +7,19 @@ import { asyncHandler } from '../utils/asyncHandler.utils';
 
 const authenticate = asyncHandler(
   async (request: Request, _response: Response, next: NextFunction) => {
-    try {
-      const authHeader = request.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer '))
-        throw APIError.Unauthorised('Missing or malformed token');
-      const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(
-        token,
-        appConfig.jwtAccessSecret
-      ) as jwt.JwtPayload;
-      request.user = {
-        id: decoded.id,
-        role: decoded.role,
-      };
-      return next();
-    } catch {
-      throw APIError.Unauthorised('Error in authenticating');
-    }
+    const authHeader = request.headers?.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer '))
+      throw APIError.Unauthorised('Missing or malformed token');
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(
+      token,
+      appConfig.jwtAccessSecret
+    ) as jwt.JwtPayload;
+    request.user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
+    return next();
   }
 );
 
