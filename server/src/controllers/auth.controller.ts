@@ -26,9 +26,9 @@ const register = asyncHandler(
     const existingUser = await User.findOne({ username });
     if (existingUser) throw APIError.Conflict('Username is already taken');
 
-    const user = await User.create({ username, password, name, email, role });
+    await User.create({ username, password, name, email, role });
 
-    return response.status(HttpCodes.Created).json(APIResponse.Created(user));
+    return response.status(HttpCodes.Created).json(APIResponse.NoContent());
   }
 );
 
@@ -49,7 +49,7 @@ const login = asyncHandler(
     user.refreshToken = refreshToken;
     await user.save();
 
-    response.cookie('refreshToken', {
+    response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: appConfig.nodeEnv === 'production',
       sameSite: appConfig.nodeEnv === 'production' ? 'none' : 'strict',
@@ -89,4 +89,28 @@ const refreshToken = asyncHandler(
   }
 );
 
-export { register, login, refreshToken };
+const me = asyncHandler(
+  async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      if (!request.user) throw APIError.Unauthorised();
+      const { id, role } = request.user;
+      if (!id || !role) throw APIError.Unauthorised();
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok({ id, role }));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+const logout = asyncHandler(
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
+      response.cookie('refreshToken', { maxAge: 0 } as CookieOptions);
+      return response.status(HttpCodes.NoContent).json(APIResponse.NoContent());
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+export { register, login, refreshToken, me, logout };
