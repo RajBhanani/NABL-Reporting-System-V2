@@ -8,12 +8,14 @@ import {
   getSampleById,
   updateSample,
   deleteSample,
+  getAllSamplesPopulated,
 } from '../controllers/sample.controller';
 
 const router = Router();
 
 router.post('/', createSample);
 router.get('/', getAllSamples);
+router.get('/populated', getAllSamplesPopulated);
 router.get('/type/:_id', getSamplesOfType);
 router.get('/set/:_id', getSamplesOfSet);
 router.get('/id/:_id', getSampleById);

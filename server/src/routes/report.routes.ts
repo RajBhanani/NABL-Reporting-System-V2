@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   createReportFromSample,
   getAllReports,
+  getAllReportsPopulated,
   getReportById,
   getReportsOfSample,
   getReportsOfType,
@@ -15,6 +16,7 @@ const router = Router();
 
 router.post('/', createReportFromSample);
 router.get('/', getAllReports);
+router.get('/populated', getAllReportsPopulated);
 router.get('/type/:_id', getReportsOfType);
 router.get('/sample/:_id', getReportsOfSample);
 router.get('/id/:_id', getReportById);
