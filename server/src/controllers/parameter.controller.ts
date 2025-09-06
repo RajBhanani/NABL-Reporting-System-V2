@@ -54,6 +54,17 @@ const createParameter = asyncHandler(
 const getAllParameters = asyncHandler(
   async (_request: Request, response: Response, next: NextFunction) => {
     try {
+      const parameters = await Parameter.find().select('-__v');
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(parameters));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+const getAllParametersPopulated = asyncHandler(
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
       const parameters = await Parameter.find()
         .populate('sampleType', 'name')
         .select('-__v');
@@ -167,6 +178,7 @@ const deleteParameter = asyncHandler(
 export {
   createParameter,
   getAllParameters,
+  getAllParametersPopulated,
   getParametersOfType,
   getParameterById,
   updateParameter,

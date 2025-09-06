@@ -154,6 +154,17 @@ const createReportFromSample = asyncHandler(
 const getAllReports = asyncHandler(
   async (_request: Request, response: Response, next: NextFunction) => {
     try {
+      const reports = await Report.find().select('-__v');
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(reports));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+const getAllReportsPopulated = asyncHandler(
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
       const reports = await Report.find()
         .populate('sampleId', 'sampleCode')
         .populate('parameterSet', 'name')
@@ -169,7 +180,7 @@ const getAllReports = asyncHandler(
 const getReportsOfType = asyncHandler(
   async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const { _id } = cleanFields(request.body);
+      const { _id } = cleanFields(request.params);
       validateDefined({ _id });
       validateMongoID(_id);
 
@@ -413,6 +424,7 @@ function compileDataFromTypedTestData(
 export {
   createReportFromSample,
   getAllReports,
+  getAllReportsPopulated,
   getReportsOfType,
   getReportsOfSample,
   getReportById,

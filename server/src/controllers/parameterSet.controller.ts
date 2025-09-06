@@ -58,6 +58,18 @@ const createParameterSet = asyncHandler(
 const getAllParameterSets = asyncHandler(
   async (_request: Request, response: Response, next: NextFunction) => {
     try {
+      const parameterSets = await ParameterSet.find().select('-__v');
+
+      return response.status(HttpCodes.Ok).json(parameterSets);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+const getAllParameterSetsPopulated = asyncHandler(
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
       const parameterSets = await ParameterSet.find()
         .populate('sampleType', 'name')
         .populate('parameters', 'name')
@@ -193,6 +205,7 @@ const deleteParameterSet = asyncHandler(
 export {
   createParameterSet,
   getAllParameterSets,
+  getAllParameterSetsPopulated,
   getParameterSetsOfType,
   getParameterSetById,
   updateParameterSet,

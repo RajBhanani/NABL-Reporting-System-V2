@@ -123,6 +123,18 @@ const createSample = asyncHandler(
 const getAllSamples = asyncHandler(
   async (_request: Request, response: Response, next: NextFunction) => {
     try {
+      const samples = await Sample.find().select('-__v');
+
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(samples));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+const getAllSamplesPopulated = asyncHandler(
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
       const samples = await Sample.find()
         .populate('sampleType', 'name')
         .populate('parameterSets.parameterSet', 'name')
@@ -314,6 +326,7 @@ const deleteSample = asyncHandler(
 export {
   createSample,
   getAllSamples,
+  getAllSamplesPopulated,
   getSamplesOfType,
   getSamplesOfSet,
   getSampleById,
