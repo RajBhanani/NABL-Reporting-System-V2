@@ -19,7 +19,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (request: LoginRequest) => Promise<boolean | string>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
   login: (_request: LoginRequest) => Promise.reject(false),
-  logout: () => {},
+  logout: () => Promise.reject(),
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -98,7 +98,6 @@ const Login = () => {
       const values = getValues();
       setLoading(true);
       const data = await login(values as LoginRequest);
-      console.log(data);
       if (data === true) {
         navigate(to, { replace: true });
         enqueueSnackbar('Logged In', { variant: 'success' });
@@ -153,7 +152,9 @@ const Login = () => {
             disabled={loading}
           />
           {!loading ? (
-            <Button variant="outlined">Submit</Button>
+            <Button type="submit" variant="outlined">
+              Submit
+            </Button>
           ) : (
             <CenteredBox>
               <CircularProgress />

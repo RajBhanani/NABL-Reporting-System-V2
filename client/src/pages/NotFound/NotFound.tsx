@@ -13,6 +13,8 @@ const NotFound = () => {
         flexDirection: 'column',
         gap: '50px',
         backgroundColor: 'background.default',
+        padding: '25px',
+        textAlign: 'center',
       }}
     >
       <Typography color="text.primary" variant="h3">
