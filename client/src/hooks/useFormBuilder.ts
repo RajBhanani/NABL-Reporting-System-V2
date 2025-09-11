@@ -1,95 +1,128 @@
-import { useCallback, useMemo, useState, type ChangeEvent } from 'react';
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import type { FieldValue, FormInput } from '../types/form';
+import { useCallback, useMemo, useState } from 'react';
 
-function useFormBuilder<FieldNames extends string>(
-  formData: FormInput<FieldNames>
-) {
-  const [fields, setFields] = useState(() => {
-    return Object.fromEntries(
-      Object.entries(formData).map(([key, config]) => {
-        const initialValue = (config as FormInput<FieldNames>[FieldNames])
-          .initialValue;
-        const validators = formData[key as FieldNames].validators;
-        let initialErrors: string[] = [];
-        if (validators) {
-          initialErrors = validators
-            .map((validator) => validator(initialValue))
-            .filter((err) => err !== null);
-        }
-        return [
-          key,
-          {
-            value: initialValue,
-            errors: initialErrors,
-            touched: false,
-          },
-        ];
-      })
-    ) as Record<
-      FieldNames,
-      { value: FieldValue; errors: string[]; touched: boolean }
-    >;
+import type {
+  BaseFieldState,
+  FieldConfig,
+  FieldState,
+  FormInput,
+} from '../types/form';
+
+export function useFormBuilder<
+  TFields extends Record<string, FieldConfig<any>>,
+>(formInput: FormInput<TFields>) {
+  // Fields without setter and updater functions, used for storing and updating values
+  const [baseFields, setBaseFields] = useState(() => {
+    const initialEntries = Object.entries(formInput).map(([key, config]) => {
+      const { initialValue, validators } = config as FieldConfig<any>;
+      let errors: string[] = [];
+      if (validators) {
+        errors = validators
+          .map((validator) => validator(initialValue))
+          .filter((error) => error !== null);
+      }
+      return [key, { value: initialValue, errors, touched: false }];
+    });
+    const initialFields = Object.fromEntries(initialEntries) as {
+      [K in keyof TFields]: BaseFieldState<TFields[K]['initialValue']>;
+    };
+    return initialFields;
   });
 
-  const handleFieldChange = useCallback(
-    (fieldName: FieldNames) => (e: ChangeEvent<HTMLInputElement>) => {
-      const newValue =
-        e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      const validators = formData[fieldName]?.validators;
-      let newErrors: string[] = [];
-      if (validators) {
-        newErrors = validators
-          .map((validator) => validator(newValue))
-          .filter((err) => err !== null);
-      }
-      setFields((prev) => {
-        return {
-          ...prev,
-          [fieldName]: {
-            value: newValue,
-            errors: newErrors,
-            touched: true,
-          },
-        };
-      });
+  // Helper function to avoid code repetition
+  const applyValue = useCallback(
+    <K extends keyof TFields>(
+      fieldName: K,
+      newValue: TFields[K]['initialValue']
+    ) => {
+      const { validators } = formInput[fieldName];
+      const errors =
+        validators
+          ?.map((validator) => validator(newValue))
+          .filter((err): err is string => err !== null) ?? [];
+      setBaseFields((prev) => ({
+        ...prev,
+        [fieldName]: {
+          ...prev[fieldName],
+          value: newValue,
+          errors,
+          touched: true,
+        },
+      }));
     },
-    []
+    [formInput]
   );
 
-  const markAllAsTouched = useCallback(() => {
-    Object.keys(fields).forEach((key) => {
-      setFields((prev) => {
-        return {
-          ...prev,
-          [key]: {
-            ...fields[key as FieldNames],
-            touched: true,
-          },
+  // Fields with setter and updater functions
+  const fields = useMemo(() => {
+    return Object.fromEntries(
+      (Object.keys(baseFields) as (keyof TFields)[]).map((key) => {
+        const base = baseFields[key];
+        const set = (newValue: TFields[typeof key]['initialValue']) => {
+          applyValue(key, newValue);
         };
-      });
-    });
-  }, [fields]);
+        const update = (
+          updateFn: (
+            prevValue: TFields[typeof key]['initialValue']
+          ) => TFields[typeof key]['initialValue']
+        ) => {
+          set(updateFn(base.value));
+        };
+        const reset = () => {
+          const { initialValue, validators } = formInput[key];
+          const errors =
+            validators
+              ?.map((validator) => validator(initialValue))
+              .filter((err): err is string => err !== null) ?? [];
+          setBaseFields((prev) => ({
+            ...prev,
+            [key]: {
+              ...prev[key],
+              value: initialValue,
+              errors,
+              touched: false,
+            },
+          }));
+        };
+        return [key, { ...base, set, update, reset }];
+      })
+    ) as {
+      [K in keyof TFields]: FieldState<TFields[K]['initialValue']>;
+    };
+  }, [baseFields, applyValue]);
 
+  // Utility function to get key-value pairs
   const getValues = useCallback(() => {
     return Object.fromEntries(
-      Object.keys(fields).map((key) => [key, fields[key as FieldNames].value])
-    ) as Record<FieldNames, FieldValue>;
-  }, [fields]);
+      Object.entries(baseFields).map(([key, values]) => {
+        return [key, values.value];
+      })
+    );
+  }, [baseFields]);
 
   const isFormValid = useMemo(() => {
-    return Object.keys(fields).every(
-      (key) => fields[key as FieldNames].errors.length === 0
+    return Object.values(baseFields).every(
+      (field) => field.errors.length === 0
     );
-  }, [fields]);
+  }, [baseFields]);
 
-  return {
-    fields,
-    getValues,
-    handleFieldChange,
-    markAllAsTouched,
-    isFormValid,
+  const markAllAsTouched = () => {
+    setBaseFields(
+      (prev) =>
+        Object.fromEntries(
+          Object.entries(prev).map(([key, value]) => {
+            return [key, { ...value, touched: true }];
+          })
+        ) as typeof prev
+    );
   };
-}
 
-export { useFormBuilder };
+  const resetForm = () => {
+    Object.keys(fields).forEach((key) => {
+      fields[key].reset();
+    });
+  };
+
+  return { fields, getValues, isFormValid, markAllAsTouched, resetForm };
+}

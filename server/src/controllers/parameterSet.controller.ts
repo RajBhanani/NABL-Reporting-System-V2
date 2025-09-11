@@ -60,7 +60,7 @@ const getAllParameterSets = asyncHandler(
     try {
       const parameterSets = await ParameterSet.find().select('-__v');
 
-      return response.status(HttpCodes.Ok).json(parameterSets);
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(parameterSets));
     } catch (error) {
       next(error);
     }
@@ -75,7 +75,7 @@ const getAllParameterSetsPopulated = asyncHandler(
         .populate('parameters', 'name')
         .select('-__v');
 
-      return response.status(HttpCodes.Ok).json(parameterSets);
+      return response.status(HttpCodes.Ok).json(APIResponse.Ok(parameterSets));
     } catch (error) {
       next(error);
     }
