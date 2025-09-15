@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Loading from './components/Loading';
 import Layout from './layout/Layout';
+import Test from './pages/Test';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -23,6 +24,7 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="/reception" element={<Reception />} />
             <Route path="/samples/*" element={<Samples />} />
+            <Route path="/test" element={<Test />} />
           </Route>
           {/* </Route> */}
           <Route path="*" element={<NotFound />} />

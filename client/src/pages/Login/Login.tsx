@@ -58,13 +58,7 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const {
-    fields,
-    getValues,
-    handleFieldChange,
-    markAllAsTouched,
-    isFormValid,
-  } = useFormBuilder({
+  const { fields, getValues, markAllAsTouched, isFormValid } = useFormBuilder({
     username: {
       initialValue: '',
       validators: [required, minLength(4), maxLength(16)],
@@ -128,7 +122,7 @@ const Login = () => {
           onSubmit={handleSubmit}
         >
           <TextField
-            onChange={handleFieldChange('username')}
+            onChange={(e) => fields.username.set(e.target.value)}
             value={fields.username.value}
             name="username"
             label="Username"
@@ -147,7 +141,7 @@ const Login = () => {
             label="Password"
             error={fields.password.touched && fields.password.errors.length > 0}
             errorMessage={fields.password.errors[0]}
-            onChange={handleFieldChange('password')}
+            onChange={(e) => fields.password.set(e.target.value)}
             value={fields.password.value}
             disabled={loading}
           />

@@ -7,7 +7,7 @@ export type Parameter = {
   unit: string;
   testMethod: string;
   variables: string[];
-  formula: string;
+  formula?: string;
 };
 
 export type ParameterPartial = { _id: string } & Partial<
@@ -23,7 +23,7 @@ export type CreateParameter = {
   unit: string;
   testMethod: string;
   variables: string[];
-  formula: string;
+  formula?: string;
 };
 
 export type UpdateParameter = {

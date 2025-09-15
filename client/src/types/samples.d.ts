@@ -25,7 +25,11 @@ export type SamplePartial = { _id: string } & Partial<Omit<Sample, '_id'>>;
 
 export type SamplePopulated = Omit<Sample, 'sampleType' | 'parameterSets'> & {
   sampleType: SampleTypePartial;
-  parameterSets: ParameterSetPartial[];
+  parameterSets: {
+    parameterSet: ParameterSetPartial;
+    isReported: boolean;
+    _id: string;
+  }[];
 };
 
 export type CreateSample = {
