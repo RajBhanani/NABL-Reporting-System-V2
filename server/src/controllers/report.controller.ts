@@ -41,7 +41,6 @@ const createReportFromSample = asyncHandler(
       validateDefined({ sampleId, parameterSetSubDocId, untypedTestData });
       validateMongoID(sampleId);
       validateMongoID(parameterSetSubDocId);
-
       if (!Array.isArray(untypedTestData))
         throw APIError.BadRequest('Test results need to be in an array');
 
@@ -51,28 +50,27 @@ const createReportFromSample = asyncHandler(
         validateMongoID(set.parameter)
       );
 
-      const [sample, metadata] = await Promise.all([
-        Sample.findOne({
-          _id: sampleId,
-          parameterSets: {
-            $elemMatch: {
-              _id: parameterSetSubDocId,
-              isReported: false,
-            },
+      const sample = await Sample.findOne({
+        _id: sampleId,
+        parameterSets: {
+          $elemMatch: {
+            _id: parameterSetSubDocId,
+            isReported: false,
+          },
+        },
+      })
+        .select('sampleId parameterSets')
+        .populate({
+          path: 'parameterSets.parameterSet',
+          select: 'parameters isPartial',
+          populate: {
+            path: 'parameters',
+            select: 'formula variables',
           },
         })
-          .select('sampleId parameterSets')
-          .populate({
-            path: 'parameterSets.parameterSet',
-            select: 'parameters isPartial',
-            populate: {
-              path: 'parameters',
-              select: 'formula variables',
-            },
-          })
-          .session(session),
-        MetaData.find().lean().session(session),
-      ]);
+        .session(session);
+
+      const metadata = await MetaData.find().lean().session(session);
 
       if (!sample)
         throw APIError.BadRequest(
@@ -88,7 +86,6 @@ const createReportFromSample = asyncHandler(
         );
 
       const sampleSubDoc = sample.parameterSets[sampleSubDocIdx];
-      console.log(sampleSubDoc.parameterSet);
       const parameterSet: {
         _id: Types.ObjectId;
         isPartial?: boolean;
@@ -99,8 +96,6 @@ const createReportFromSample = asyncHandler(
       if (!parameters) throw APIError.BadRequest('Parameters not found');
 
       const compiledData = compileDataFromTypedTestData(testData, parameters);
-
-      console.log(compiledData);
 
       const testResults = compiledData.map((data) => {
         return {

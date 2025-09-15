@@ -30,6 +30,27 @@ export function useFormBuilder<
     return initialFields;
   });
 
+  const reinitialiseForm = useCallback((newInput: FormInput<TFields>) => {
+    setBaseFields(
+      (() => {
+        const initialEntries = Object.entries(newInput).map(([key, config]) => {
+          const { initialValue, validators } = config as FieldConfig<any>;
+          let errors: string[] = [];
+          if (validators) {
+            errors = validators
+              .map((validator) => validator(initialValue))
+              .filter((error) => error !== null);
+          }
+          return [key, { value: initialValue, errors, touched: false }];
+        });
+        const initialFields = Object.fromEntries(initialEntries) as {
+          [K in keyof TFields]: BaseFieldState<TFields[K]['initialValue']>;
+        };
+        return initialFields;
+      })()
+    );
+  }, []);
+
   // Helper function to avoid code repetition
   const applyValue = useCallback(
     <K extends keyof TFields>(
@@ -124,5 +145,12 @@ export function useFormBuilder<
     });
   };
 
-  return { fields, getValues, isFormValid, markAllAsTouched, resetForm };
+  return {
+    fields,
+    getValues,
+    isFormValid,
+    markAllAsTouched,
+    resetForm,
+    reinitialiseForm,
+  };
 }

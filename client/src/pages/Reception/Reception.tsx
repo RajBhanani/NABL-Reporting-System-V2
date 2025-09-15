@@ -27,6 +27,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState, type ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import type { ParameterSetPopulated } from '../../types/parameterSets';
 import type { CreateSample } from '../../types/samples';
@@ -41,10 +42,13 @@ import { isDigit, maxLength, minLength } from '../../utils/validators';
 const Reception = () => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [openSuccessDialog, setOpenSuccessDialog] = useState(false);
   const [createdSampleCode, setCreatedSampleCode] = useState<string | null>(
     null
   );
+
+  const navigate = useNavigate();
 
   const {
     data: sampleTypes,
@@ -69,13 +73,15 @@ const Reception = () => {
   const createSampleMutation = useMutation({
     mutationFn: createSample,
     onSuccess: (data) => {
-      console.log(data);
       setCreatedSampleCode(data.sampleCode);
       resetForm();
-      queryClient.invalidateQueries({ queryKey: ['samples'] });
+      setOpenConfirmDialog(false);
+      setOpenSuccessDialog(true);
+      queryClient.invalidateQueries({
+        queryKey: ['samples', 'samplesPopulated'],
+      });
     },
     onError: (err) => {
-      console.log(err);
       enqueueSnackbar(err.message, { variant: 'error' });
     },
   });
@@ -132,11 +138,6 @@ const Reception = () => {
 
   const handleConfirm = async () => {
     createSampleMutation.mutate(getValues() as CreateSample);
-  };
-
-  const handleClose = () => {
-    setOpenDialog(false);
-    setCreatedSampleCode(null);
   };
 
   return (
@@ -381,7 +382,7 @@ const Reception = () => {
                 parameterSetsError !== null
               }
               onClick={() => {
-                setOpenDialog(true);
+                setOpenConfirmDialog(true);
               }}
               sx={{ height: '40px' }}
             >
@@ -391,114 +392,138 @@ const Reception = () => {
         </Grid>
       </CenteredBox>
 
-      <Dialog open={openDialog} onClose={handleClose}>
-        <DialogTitle>
-          {createdSampleCode ? 'Success!' : 'Confirm Sample Details'}
-        </DialogTitle>
+      <Dialog
+        open={openConfirmDialog}
+        onClose={() => {
+          setOpenConfirmDialog(false);
+        }}
+      >
+        <DialogTitle>Confirm Sample Details</DialogTitle>
         <DialogContent>
-          {createdSampleCode !== null ? (
-            <>
-              <Alert severity="success">
-                Successfully created sampled of Sample Code {createdSampleCode}
-              </Alert>
-            </>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Field</TableCell>
-                  <TableCell>Value</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Customer Name</TableCell>
-                  <TableCell>{fields.customerName.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Customer Address</TableCell>
-                  <TableCell>{fields.customerAddress.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Customer Contact Number</TableCell>
-                  <TableCell>{fields.customerContactNo.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Survey Number</TableCell>
-                  <TableCell>{fields.surveyNo.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Previous Crop</TableCell>
-                  <TableCell>{fields.prevCrop.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Next Crop</TableCell>
-                  <TableCell>{fields.nextCrop.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Requested By</TableCell>
-                  <TableCell>{fields.requestedBy.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sample Received On</TableCell>
-                  <TableCell>
-                    {fields.sampleReceivedOn.value.toDateString()}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sample Details</TableCell>
-                  <TableCell>{fields.sampleDetail.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sample Cond. Or Qty.</TableCell>
-                  <TableCell>{fields.sampleCondOrQty.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sampling By</TableCell>
-                  <TableCell>{fields.samplingBy.value || '-'}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Sample Type</TableCell>
-                  <TableCell>
-                    {
-                      sampleTypes?.find(
-                        (type) => type._id === fields.sampleType.value
-                      )?.name
-                    }
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Parameter Sets</TableCell>
-                  <TableCell>
-                    {parameterSets
-                      ?.filter((sets) =>
-                        fields.parameterSets.value.includes(sets._id)
-                      )
-                      .map((set) => set.name)
-                      .join(', ')}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          )}
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Field</TableCell>
+                <TableCell>Value</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Customer Name</TableCell>
+                <TableCell>{fields.customerName.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Customer Address</TableCell>
+                <TableCell>{fields.customerAddress.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Customer Contact Number</TableCell>
+                <TableCell>{fields.customerContactNo.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Survey Number</TableCell>
+                <TableCell>{fields.surveyNo.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Previous Crop</TableCell>
+                <TableCell>{fields.prevCrop.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Next Crop</TableCell>
+                <TableCell>{fields.nextCrop.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Requested By</TableCell>
+                <TableCell>{fields.requestedBy.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sample Received On</TableCell>
+                <TableCell>
+                  {fields.sampleReceivedOn.value.toDateString()}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sample Details</TableCell>
+                <TableCell>{fields.sampleDetail.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sample Cond. Or Qty.</TableCell>
+                <TableCell>{fields.sampleCondOrQty.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sampling By</TableCell>
+                <TableCell>{fields.samplingBy.value || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sample Type</TableCell>
+                <TableCell>
+                  {
+                    sampleTypes?.find(
+                      (type) => type._id === fields.sampleType.value
+                    )?.name
+                  }
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Parameter Sets</TableCell>
+                <TableCell>
+                  {parameterSets
+                    ?.filter((sets) =>
+                      fields.parameterSets.value.includes(sets._id)
+                    )
+                    .map((set) => set.name)
+                    .join(', ')}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </DialogContent>
         <DialogActions>
           {createSampleMutation.isPending ? (
             <CircularProgress />
           ) : (
             <>
-              <Button onClick={handleClose}>
-                {createdSampleCode ? 'Add Another' : 'Cancel'}
+              <Button
+                onClick={() => {
+                  setOpenConfirmDialog(false);
+                }}
+              >
+                Cancel
               </Button>
-              {createdSampleCode ? (
-                <Button color="info">Go to {createdSampleCode}</Button>
-              ) : (
-                <Button color="success" onClick={handleConfirm}>
-                  Confirm
-                </Button>
-              )}
+
+              <Button color="success" onClick={handleConfirm}>
+                Confirm
+              </Button>
             </>
           )}
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openSuccessDialog}
+        onClose={() => {
+          setOpenSuccessDialog(false);
+        }}
+      >
+        <DialogTitle>Success!</DialogTitle>
+        <DialogContent>
+          <Alert severity="success">Sample {createdSampleCode} created!</Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenSuccessDialog(false);
+            }}
+          >
+            Add Another
+          </Button>
+          <Button
+            color="info"
+            onClick={() => {
+              navigate(`/samples/${createSampleMutation.data?._id}`);
+            }}
+          >
+            Go to {createdSampleCode}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

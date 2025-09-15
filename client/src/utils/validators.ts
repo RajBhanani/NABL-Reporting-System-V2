@@ -35,3 +35,17 @@ export const isDigit: ValidatorFn<unknown> = (value: unknown) => {
     return /^\d+$/.test(value) ? null : 'Only digits allowed';
   return 'Invalid type';
 };
+
+export const isValidNumber: ValidatorFn<unknown> = (value: unknown) => {
+  if (typeof value === 'string')
+    return /^\d+(\.\d+)?$/.test(value) ? null : 'Enter a valid number';
+  return 'Invalid type';
+};
+
+export const isValidNumberOrEmptyString: ValidatorFn<unknown> = (
+  value: unknown
+) => {
+  if (typeof value === 'string')
+    return /^(?:\d+(?:\.\d+)?|)$/.test(value) ? null : 'Enter a valid number';
+  return 'Invalid type';
+};

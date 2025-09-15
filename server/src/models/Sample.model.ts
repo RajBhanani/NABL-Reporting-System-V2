@@ -61,7 +61,6 @@ const sampleSchema = new Schema<ISample>({
     ],
     validate: {
       validator: function (arr: SampleParameterSet[]) {
-        console.log(arr);
         return Array.isArray(arr) && arr.length > 0;
       },
     },

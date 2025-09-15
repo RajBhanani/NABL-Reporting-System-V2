@@ -137,7 +137,7 @@ const getAllSamplesPopulated = asyncHandler(
     try {
       const samples = await Sample.find()
         .populate('sampleType', 'name')
-        .populate('parameterSets.parameterSet', 'name')
+        .populate('parameterSets.parameterSet')
         .select('-__v');
 
       return response.status(HttpCodes.Ok).json(APIResponse.Ok(samples));

@@ -3,7 +3,7 @@ import type {
   CreateParameterSet,
   ParameterSet,
   ParameterSetPopulated,
-  UpdatedParameterSet,
+  UpdateParameterSet,
 } from '../types/parameterSets';
 
 import axios from './axios';
@@ -37,13 +37,13 @@ export const getParameterSetsOfType = async (id: string) => {
 };
 
 export const getParameterSetById = async (id: string) => {
-  const { data } = await axios.get<APIResponse<ParameterSet>>(
+  const { data } = await axios.get<APIResponse<ParameterSetPopulated>>(
     `/parameterSets/id/${id}`
   );
   return data.data;
 };
 
-export const updateParameterSet = async (request: UpdatedParameterSet) => {
+export const updateParameterSet = async (request: UpdateParameterSet) => {
   const { data } = await axios.put<APIResponse<null>>(
     '/parameterSets',
     request
