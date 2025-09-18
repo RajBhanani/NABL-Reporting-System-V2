@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export type ValidatorFn<T> = (value: T) => string | null;
+export type ValidatorFn<T> = (
+  value: T,
+  currValues?: Record<string, any>
+) => string | null;
 
 export type FieldConfig<T> = {
   initialValue: T;

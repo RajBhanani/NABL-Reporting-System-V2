@@ -55,15 +55,18 @@ const SampleDetails = () => {
     data: sample,
     isLoading: isSampleLoading,
     error: sampleError,
+    isSuccess: isSampleSuccess,
   } = useQuery({
     queryKey: ['samplesPopulated', id],
     queryFn: () => getSampleById(id),
   });
 
-  const unreportedParameterSets =
-    sample?.parameterSets
+  const unreportedParameterSets = useMemo(() => {
+    if (!sample) return [];
+    return sample.parameterSets
       .filter((set) => !set.isReported)
-      .map((set) => set.parameterSet._id) ?? [];
+      .map((set) => set.parameterSet._id);
+  }, [isSampleSuccess]);
 
   const parameterSetsQueries = useQueries({
     queries: unreportedParameterSets.map((id) => ({
@@ -78,7 +81,7 @@ const SampleDetails = () => {
       parameterSetsQueries.every((query) => query.isSuccess)
         ? parameterSetsQueries.map((query) => query.data)
         : [],
-    [parameterSetsQueries]
+    [parameterSetsQueries.every((query) => query.isSuccess)]
   );
 
   const parametersQueries = useQueries({
@@ -101,12 +104,13 @@ const SampleDetails = () => {
       parametersQueries.every((query) => query.isSuccess)
         ? parametersQueries.map((query) => query.data)
         : [],
-    [parametersQueries]
+    [parametersQueries.every((q) => q.isSuccess)]
   );
 
-  const parametersLookup = useMemo(() => {
-    return Object.fromEntries(parameters.map((param) => [param._id, param]));
-  }, [parameters]);
+  const parametersLookup = useMemo(
+    () => Object.fromEntries(parameters.map((param) => [param._id, param])),
+    [parameters]
+  );
 
   /* 
    --------------- 
@@ -138,59 +142,50 @@ const SampleDetails = () => {
   |   Form Data   |
    ---------------
   */
-  const formInput = useMemo(() => {
-    if (selectedParameters.length === 0) {
-      return {};
-    }
-    return Object.fromEntries(
-      selectedParameters.map((param) =>
-        param.formula
-          ? [
-              param._id,
-              {
-                initialValue: Object.fromEntries(
-                  param.variables.map((variable) => [variable, ''])
-                ),
-                validators: [
-                  (value: object) =>
-                    Object.entries(value).every(
-                      ([_key, val]) => isValidNumberOrEmptyString(val) === null
-                    )
-                      ? null
-                      : 'One or more variable data is not a valid number',
-                  (value: object) => {
-                    const values = Object.entries(value).map(
-                      ([_key, val]) => val
-                    );
-                    return values.every((val) => val === '') ||
-                      values.every((val) => val !== '')
-                      ? null
-                      : 'Enter all variables or none at all';
-                  },
-                ],
-              },
-            ]
-          : [
-              param._id,
-              { initialValue: '', validators: [isValidNumberOrEmptyString] },
-            ]
-      )
-    );
-  }, [selectedParameters]);
 
   const { fields, getValues, isFormValid, reinitialiseForm, resetForm } =
-    useFormBuilder({
-      analysisStartedOn: { initialValue: new Date() },
-      analysisEndedOn: { initialValue: new Date() },
-      ...formInput,
-    });
+    useFormBuilder({});
 
   useEffect(() => {
     setIsLoading(true);
     reinitialiseForm({
       analysisStartedOn: { initialValue: new Date() },
       analysisEndedOn: { initialValue: new Date() },
-      ...formInput,
+      ...Object.fromEntries(
+        selectedParameters.map((param) =>
+          param.formula
+            ? [
+                param._id,
+                {
+                  initialValue: Object.fromEntries(
+                    param.variables.map((variable) => [variable, ''])
+                  ),
+                  validators: [
+                    (value: object) =>
+                      Object.entries(value).every(
+                        ([_key, val]) =>
+                          isValidNumberOrEmptyString(val) === null
+                      )
+                        ? null
+                        : 'One or more variable data is not a valid number',
+                    (value: object) => {
+                      const values = Object.entries(value).map(
+                        ([_key, val]) => val
+                      );
+                      return values.every((val) => val === '') ||
+                        values.every((val) => val !== '')
+                        ? null
+                        : 'Enter all variables or none at all';
+                    },
+                  ],
+                },
+              ]
+            : [
+                param._id,
+                { initialValue: '', validators: [isValidNumberOrEmptyString] },
+              ]
+        )
+      ),
     });
     setIsLoading(false);
   }, [selectedParameters]);
@@ -210,7 +205,7 @@ const SampleDetails = () => {
       setOpenConfirmDialog(false);
       setOpenSuccessDialog(true);
       queryClient.invalidateQueries({
-        queryKey: ['samplesPopulated', sample?._id],
+        queryKey: ['samplesPopulated', id],
       });
     },
     onError: (err) => {
@@ -249,7 +244,8 @@ const SampleDetails = () => {
     isLoading ||
     isSampleLoading ||
     parameterSetsQueries.some((query) => query.isLoading) ||
-    parametersQueries.some((query) => query.isLoading)
+    parametersQueries.some((query) => query.isLoading) ||
+    Object.keys(fields).length === 0
   )
     return <Loading />;
 

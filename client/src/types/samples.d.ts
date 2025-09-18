@@ -11,6 +11,7 @@ export type Sample = {
   requestedBy?: string;
   sampleCondOrQty?: string;
   samplingBy?: string;
+  sampleDetails?: string;
   customerName?: string;
   customerAddress?: string;
   customerContactNo?: string;
@@ -39,6 +40,7 @@ export type CreateSample = {
   requestedBy?: string;
   sampleCondOrQty?: string;
   samplingBy?: string;
+  sampleDetails?: string;
   customerName?: string;
   customerAddress?: string;
   customerContactNo?: string;
@@ -53,6 +55,7 @@ export type UpdateSample = {
   requestedBy?: string;
   sampleCondOrQty?: string;
   samplingBy?: string;
+  sampleDetails?: string;
   customerName?: string;
   customerAddress?: string;
   customerContactNo?: string;

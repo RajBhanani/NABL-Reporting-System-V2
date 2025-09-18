@@ -35,7 +35,7 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       validate: {
         validator: (value: string) => {
-          return /^[a-zA-Z0-9._%+-]+@sumichem\.co\.in$/.test(value);
+          return /\S+@\S+\.\S+/.test(value);
         },
       },
       trim: true,

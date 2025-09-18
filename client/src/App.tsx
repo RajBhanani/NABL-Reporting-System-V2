@@ -2,8 +2,8 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Loading from './components/Loading';
+import PrivateRoute from './components/PrivateRoute';
 import Layout from './layout/Layout';
-import Test from './pages/Test';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -11,6 +11,8 @@ const Register = lazy(() => import('./pages/Register'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Reception = lazy(() => import('./pages/Reception'));
 const Samples = lazy(() => import('./pages/Samples'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Profile = lazy(() => import('./pages/Profile'));
 
 const App = () => {
   return (
@@ -19,14 +21,15 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          {/* <Route element={<PrivateRoute />}> */}
-          <Route element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="/reception" element={<Reception />} />
-            <Route path="/samples/*" element={<Samples />} />
-            <Route path="/test" element={<Test />} />
+          <Route element={<PrivateRoute />}>
+            <Route element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/reception" element={<Reception />} />
+              <Route path="/samples/*" element={<Samples />} />
+              <Route path="/reports/*" element={<Reports />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
           </Route>
-          {/* </Route> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

@@ -20,6 +20,7 @@
     "dayjs": "^1.11.18",
     "notistack": "^3.0.2",
     "npm": "^11.5.2",
+    "pdfmake": "^0.2.20",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.8.2"
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@tanstack/react-query-devtools": "^5.87.1",
+    "@types/pdfmake": "^0.2.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",

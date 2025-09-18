@@ -2,12 +2,12 @@ import { Typography } from '@mui/material';
 
 import CenteredBox from '../../components/CenteredBox';
 
-const Home = () => {
+const Profile = () => {
   return (
     <CenteredBox style={{ height: '100%' }}>
-      <Typography>Dashboard coming soon!</Typography>
+      <Typography>Profiles coming soon!</Typography>
     </CenteredBox>
   );
 };
 
-export default Home;
+export default Profile;

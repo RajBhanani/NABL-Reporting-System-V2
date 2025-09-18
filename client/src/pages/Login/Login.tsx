@@ -147,7 +147,7 @@ const Login = () => {
           />
           {!loading ? (
             <Button type="submit" variant="outlined">
-              Submit
+              Login
             </Button>
           ) : (
             <CenteredBox>
@@ -155,6 +155,16 @@ const Login = () => {
             </CenteredBox>
           )}
         </form>
+        <Typography>OR</Typography>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={() => {
+            navigate('/register');
+          }}
+        >
+          Register
+        </Button>
       </LoginBox>
     </BackgroundBox>
   );

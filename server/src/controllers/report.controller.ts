@@ -234,8 +234,8 @@ const getReportById = asyncHandler(
 
       const report = await Report.findById(_id)
         .populate('sampleId', 'sampleCode')
-        .populate('parameterSet', 'name')
-        .populate('testResults.parameter', 'name')
+        .populate('parameterSet', 'name isPartial')
+        .populate('testResults.parameter', 'name unit testMethod')
         .select('-__v');
 
       if (!report)
@@ -269,6 +269,11 @@ const updateReportData = asyncHandler(
         });
 
       if (!report) throw APIError.BadRequest(`No report with ID ${_id} exists`);
+
+      if (report.isAuthorised)
+        throw APIError.BadRequest(
+          'The report has been authorised, you cannot make any more changes.'
+        );
 
       const parameters = (
         report.parameterSet as {
