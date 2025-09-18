@@ -12,9 +12,10 @@ import type {
 export function useFormBuilder<
   TFields extends Record<string, FieldConfig<any>>,
 >(formInput: FormInput<TFields>) {
-  // Fields without setter and updater functions, used for storing and updating values
-  const [baseFields, setBaseFields] = useState(() => {
-    const initialEntries = Object.entries(formInput).map(([key, config]) => {
+  const [currentInput, setCurrentInput] = useState(formInput);
+
+  const buildBaseFields = useCallback((input: FormInput<TFields>) => {
+    const initialEntries = Object.entries(input).map(([key, config]) => {
       const { initialValue, validators } = config as FieldConfig<any>;
       let errors: string[] = [];
       if (validators) {
@@ -28,28 +29,20 @@ export function useFormBuilder<
       [K in keyof TFields]: BaseFieldState<TFields[K]['initialValue']>;
     };
     return initialFields;
-  });
-
-  const reinitialiseForm = useCallback((newInput: FormInput<TFields>) => {
-    setBaseFields(
-      (() => {
-        const initialEntries = Object.entries(newInput).map(([key, config]) => {
-          const { initialValue, validators } = config as FieldConfig<any>;
-          let errors: string[] = [];
-          if (validators) {
-            errors = validators
-              .map((validator) => validator(initialValue))
-              .filter((error) => error !== null);
-          }
-          return [key, { value: initialValue, errors, touched: false }];
-        });
-        const initialFields = Object.fromEntries(initialEntries) as {
-          [K in keyof TFields]: BaseFieldState<TFields[K]['initialValue']>;
-        };
-        return initialFields;
-      })()
-    );
   }, []);
+
+  // Fields without setter and updater functions, used for storing and updating values
+  const [baseFields, setBaseFields] = useState(() =>
+    buildBaseFields(formInput)
+  );
+
+  const reinitialiseForm = useCallback(
+    (newInput: FormInput<TFields>) => {
+      setCurrentInput(newInput);
+      setBaseFields(buildBaseFields(newInput));
+    },
+    [buildBaseFields]
+  );
 
   // Helper function to avoid code repetition
   const applyValue = useCallback(
@@ -57,7 +50,7 @@ export function useFormBuilder<
       fieldName: K,
       newValue: TFields[K]['initialValue']
     ) => {
-      const { validators } = formInput[fieldName];
+      const { validators } = currentInput[fieldName];
       const errors =
         validators
           ?.map((validator) => validator(newValue))
@@ -72,7 +65,7 @@ export function useFormBuilder<
         },
       }));
     },
-    [formInput]
+    [currentInput]
   );
 
   // Fields with setter and updater functions
@@ -85,13 +78,25 @@ export function useFormBuilder<
         };
         const update = (
           updateFn: (
-            prevValue: TFields[typeof key]['initialValue']
+            prevFormValue: TFields[typeof key]['initialValue']
           ) => TFields[typeof key]['initialValue']
         ) => {
-          set(updateFn(base.value));
+          setBaseFields((prev) => {
+            const prevValue = prev[key].value;
+            const newValue = updateFn(prevValue);
+            const { validators } = formInput[key];
+            const errors =
+              validators
+                ?.map((v) => v(newValue))
+                .filter((err): err is string => err !== null) ?? [];
+            return {
+              ...prev,
+              [key]: { ...prev[key], value: newValue, errors, touched: true },
+            };
+          });
         };
         const reset = () => {
-          const { initialValue, validators } = formInput[key];
+          const { initialValue, validators } = currentInput[key];
           const errors =
             validators
               ?.map((validator) => validator(initialValue))

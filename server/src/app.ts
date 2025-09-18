@@ -6,6 +6,7 @@ import { appConfig } from './config/appConfig';
 import { errorHandler } from './middlewares/error.middleware';
 import authRouter from './routes/auth.routes';
 import healthcheckRouter from './routes/healthcheck.routes';
+import metadataRouter from './routes/metadata.routes';
 import { notFound } from './routes/notFound.routes';
 import parameterRouter from './routes/parameter.routes';
 import parameterSetRouter from './routes/parameterSet.routes';
@@ -28,6 +29,7 @@ app.use('/api/v2/parameters', parameterRouter);
 app.use('/api/v2/parameterSets', parameterSetRouter);
 app.use('/api/v2/samples', sampleRouter);
 app.use('/api/v2/reports', reportRouter);
+app.use('/api/v2/metadata', metadataRouter);
 
 app.use(notFound);
 

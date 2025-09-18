@@ -105,7 +105,7 @@ const Reception = () => {
     nextCrop: { initialValue: '' },
     requestedBy: { initialValue: '' },
     sampleReceivedOn: { initialValue: new Date() },
-    sampleDetail: { initialValue: '' },
+    sampleDetails: { initialValue: '' },
     sampleCondOrQty: { initialValue: '' },
     samplingBy: { initialValue: '' },
     sampleType: {
@@ -254,10 +254,10 @@ const Reception = () => {
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <TextField
-              name="sampleDetail"
+              name="sampleDetails"
               label="Sample Details"
-              value={fields.sampleDetail.value}
-              onChange={(e) => fields.sampleDetail.set(e.target.value)}
+              value={fields.sampleDetails.value}
+              onChange={(e) => fields.sampleDetails.set(e.target.value)}
               fullWidth
             />
           </Grid>
@@ -444,7 +444,7 @@ const Reception = () => {
               </TableRow>
               <TableRow>
                 <TableCell>Sample Details</TableCell>
-                <TableCell>{fields.sampleDetail.value || '-'}</TableCell>
+                <TableCell>{fields.sampleDetails.value || '-'}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Sample Cond. Or Qty.</TableCell>

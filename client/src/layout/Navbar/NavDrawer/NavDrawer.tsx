@@ -27,12 +27,40 @@ const NavDrawer = ({
       <CenteredBox style={boxStyles}>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <AccountCircle sx={{ fontSize: '125px' }} />
-          <Button onClick={() => navigate('/profile')}>Profile</Button>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              navigate('/profile');
+            }}
+          >
+            Profile
+          </Button>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <Button onClick={() => navigate('/reception')}>Reception</Button>
-          <Button onClick={() => navigate('/samples')}>Samples</Button>
-          <Button onClick={() => navigate('/reports')}>Reports</Button>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              navigate('/reception');
+            }}
+          >
+            Reception
+          </Button>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              navigate('/samples');
+            }}
+          >
+            Samples
+          </Button>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              navigate('/reports');
+            }}
+          >
+            Reports
+          </Button>
         </Box>
         <Button
           onClick={async () => {

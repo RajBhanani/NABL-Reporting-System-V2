@@ -21,7 +21,7 @@ const NotFound = () => {
         404: Page Not Found
       </Typography>
       <Button variant="contained" onClick={() => navigate('/')}>
-        Go back
+        Home
       </Button>
     </CenteredBox>
   );

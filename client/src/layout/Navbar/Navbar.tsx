@@ -1,9 +1,16 @@
 import { Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, IconButton, styled, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  IconButton,
+  styled,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import NavButtonsBox from './NavButtonsBox.tsx/NavButtonsBox';
+import NavButtonsBox from './NavButtonsBox/NavButtonsBox';
 import NavDrawer from './NavDrawer/NavDrawer';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -25,18 +32,20 @@ const Navbar = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography
-          variant="h6"
-          onClick={() => navigate('/')}
+        <Box
           sx={{
             textAlign: { xs: 'right', sm: 'left' },
             flexGrow: 1,
-            cursor: 'pointer',
-            userSelect: 'none',
           }}
         >
-          NABL
-        </Typography>
+          <Typography
+            variant="h6"
+            onClick={() => navigate('/')}
+            sx={{ width: 'fit-content', cursor: 'pointer', userSelect: 'none' }}
+          >
+            NABL
+          </Typography>
+        </Box>
         <NavButtonsBox />
         <NavDrawer open={isDrawerOpen} setOpen={setIsDrawerOpen} />
       </StyledToolbar>
