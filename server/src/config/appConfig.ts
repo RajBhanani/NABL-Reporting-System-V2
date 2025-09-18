@@ -3,6 +3,7 @@ import 'dotenv/config';
 interface Config {
   port: number;
   nodeEnv: string;
+  revealStack: string;
   clientUrl: string;
   mongoUri: string;
   jwtAccessSecret: string;
@@ -14,6 +15,7 @@ interface Config {
 export const appConfig: Config = {
   port: Number(process.env.PORT) || 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
+  revealStack: process.env.REVEAL_STACK || 'no',
   clientUrl: process.env.CLIENT_URL || '',
   mongoUri: process.env.MONGO_URI || '',
   jwtAccessSecret:

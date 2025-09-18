@@ -19,7 +19,7 @@ class APIError extends Error {
     this.status = status;
     this.type = type;
     this.errors = errors;
-    if (appConfig.nodeEnv === 'development') {
+    if (appConfig.revealStack === 'yes') {
       if (stack) this.stack = stack;
       else Error.captureStackTrace(this, this.constructor);
     } else this.stack = undefined;
