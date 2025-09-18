@@ -18,7 +18,7 @@ const getMetaData = asyncHandler(
 );
 
 const updateMetaData = asyncHandler(
-  async (request: Request, response: Response, next: NextFunction) => {
+  async (_request: Request, _response: Response, next: NextFunction) => {
     try {
       throw APIError.InternalServerError('Not Implemented');
     } catch (error) {
