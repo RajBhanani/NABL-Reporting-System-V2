@@ -54,6 +54,7 @@ const login = asyncHandler(
       secure: appConfig.revealStack === 'no',
       sameSite: appConfig.revealStack === 'no' ? 'none' : 'strict',
       maxAge: convertToMiliseconds(appConfig.jwtRefreshExpiresIn),
+      partitioned: true,
     } as CookieOptions);
 
     return response.status(HttpCodes.Ok).json(APIResponse.Ok(accessToken));
