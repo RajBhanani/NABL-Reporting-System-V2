@@ -51,8 +51,8 @@ const login = asyncHandler(
 
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: appConfig.nodeEnv === 'production',
-      sameSite: appConfig.nodeEnv === 'production' ? 'none' : 'strict',
+      secure: appConfig.revealStack === 'no',
+      sameSite: appConfig.revealStack === 'no' ? 'none' : 'strict',
       maxAge: convertToMiliseconds(appConfig.jwtRefreshExpiresIn),
     } as CookieOptions);
 
