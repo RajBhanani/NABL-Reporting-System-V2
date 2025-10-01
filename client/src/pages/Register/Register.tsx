@@ -234,7 +234,7 @@ export const Register = () => {
           </Button>
         </form>
         <Typography>OR</Typography>
-        <Button variant="outlined" fullWidth>
+        <Button variant="outlined" fullWidth onClick={() => navigate('/login')}>
           Login
         </Button>
       </RegisterBox>
